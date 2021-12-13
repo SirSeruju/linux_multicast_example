@@ -18,7 +18,6 @@ int main(int argc, char *argv[]){
   struct sockaddr_in addr, caddr;
   int sd, read_size;
   char buff[BUFF_SIZE];
-  char *msg = "Hello, motherfucker!";
 
   if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
       perror("socket");
@@ -33,7 +32,7 @@ int main(int argc, char *argv[]){
 
   struct ip_mreq group = {};
   group.imr_multiaddr.s_addr = inet_addr(GROUP);
-  group.imr_interface.s_addr = inet_addr("0.0.0.0");
+  group.imr_interface.s_addr = INADDR_ANY;
   setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&group, sizeof(group));
 
 

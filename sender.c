@@ -12,6 +12,7 @@
 
 #define PORT 12345
 #define GROUP "224.1.1.5"
+#define HOST "192.168.0.1"
 
 int main(int argc, char *argv[]){
   struct sockaddr_in addr;
@@ -23,7 +24,14 @@ int main(int argc, char *argv[]){
       exit(1);
   }
 
-  /* set up destination address */
+  // Default TTL
+  setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &(unsigned char){1}, sizeof(unsigned char));
+
+  // Define network interface for send datagrams
+  setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &(in_addr_t){inet_addr(HOST)}, sizeof(in_addr_t));
+
+
+  // Set up destination address
   memset(&addr,0,sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = inet_addr(GROUP);
