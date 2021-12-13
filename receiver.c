@@ -45,12 +45,7 @@ int main(int argc, char *argv[]){
   while(1){
     read_size = recvfrom(sd, buff, BUFF_SIZE - 1, MSG_WAITALL, (struct sockaddr*) &caddr, &c);
     buff[read_size] = '\0';
-    for(int i = 0; i < 4; i++)
-      if(i != 3)
-        printf("%u.", ((unsigned char*)&caddr.sin_addr)[i]);
-      else
-        printf("%u", ((unsigned char*)&caddr.sin_addr)[i]);
-    printf("\n");
+    printf("%s\n", inet_ntoa(caddr.sin_addr));
     printf("MESG: %s\n", buff);
   }
 }
