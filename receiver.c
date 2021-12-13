@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
   /* set up destination address */
   memset(&addr,0,sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+  addr.sin_addr.s_addr = INADDR_ANY;
   addr.sin_port=htons(PORT);
 
   struct ip_mreq group = {};
@@ -45,6 +45,12 @@ int main(int argc, char *argv[]){
   while(1){
     read_size = recvfrom(sd, buff, BUFF_SIZE - 1, MSG_WAITALL, (struct sockaddr*) &caddr, &c);
     buff[read_size] = '\0';
+    for(int i = 0; i < 4; i++)
+      if(i != 3)
+        printf("%u.", ((unsigned char*)&caddr.sin_addr)[i]);
+      else
+        printf("%u", ((unsigned char*)&caddr.sin_addr)[i]);
+    printf("\n");
     printf("MESG: %s\n", buff);
   }
 }
