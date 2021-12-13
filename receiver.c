@@ -6,6 +6,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
+#include <ifaddrs.h>
 
 #include <unistd.h>
 
@@ -30,11 +31,22 @@ int main(int argc, char *argv[]){
   addr.sin_addr.s_addr = INADDR_ANY;
   addr.sin_port=htons(PORT);
 
-  struct ip_mreqn group = {};
-  group.imr_multiaddr.s_addr = inet_addr(GROUP);
-  group.imr_address.s_addr = INADDR_ANY;
-  group.imr_ifindex = 0;
-  setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&group, sizeof(group));
+  // Set group for all addresses
+  struct ip_mreqn group;
+  struct ifaddrs* addrs;
+  getifaddrs(&addrs);
+  struct ifaddrs* tmp = addrs;
+  while(tmp){
+    if(tmp->ifa_addr && tmp->ifa_addr->sa_family == AF_INET){
+      struct sockaddr_in *pAddr = (struct sockaddr_in *)tmp->ifa_addr;
+      group.imr_multiaddr.s_addr = inet_addr(GROUP);
+      group.imr_address.s_addr = inet_addr(inet_ntoa(pAddr->sin_addr));
+      group.imr_ifindex = 0;
+      setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&group, sizeof(group));
+    }
+    tmp = tmp->ifa_next;
+  }
+  freeifaddrs(addrs);
 
 
   if(bind(sd, (struct sockaddr*)&addr, sizeof(addr)) < 0){
