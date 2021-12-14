@@ -6,13 +6,13 @@
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
+#include <ifaddrs.h>
 
 #include <unistd.h>
 
 
 #define PORT 12345
 #define GROUP "224.1.1.5"
-#define HOST "192.168.0.1"
 
 int main(int argc, char *argv[]){
   struct sockaddr_in addr;
@@ -27,21 +27,26 @@ int main(int argc, char *argv[]){
   // Default TTL
   setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &(unsigned char){1}, sizeof(unsigned char));
 
-  // Define network interface for send datagrams
-  setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &(in_addr_t){inet_addr(HOST)}, sizeof(in_addr_t));
-
-
-  // Set up destination address
-  memset(&addr,0,sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = inet_addr(GROUP);
-  addr.sin_port=htons(PORT);
-
-  while (1) {
-    if(sendto(fd, msg, strlen(msg), 0, (struct sockaddr*)&addr, sizeof(addr)) < 0){
-        perror("sendto");
-        return 1;
+  struct ip_mreqn group;
+  struct ifaddrs* addrs;
+  getifaddrs(&addrs);
+  while(1){
+  struct ifaddrs* tmp = addrs;
+    while(tmp){
+      if(tmp->ifa_addr && tmp->ifa_addr->sa_family == AF_INET){
+        struct sockaddr_in *pAddr = (struct sockaddr_in *)tmp->ifa_addr;
+        memset(&addr,0,sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr(inet_ntoa(pAddr->sin_addr));
+        addr.sin_port=htons(PORT);
+        if(sendto(fd, msg, strlen(msg), 0, (struct sockaddr*)&addr, sizeof(addr)) < 0){
+          perror("sendto");
+          return 1;
+        }
+      }
+      tmp = tmp->ifa_next;
     }
-    sleep(3);
+    sleep(1);
   }
+  freeifaddrs(addrs);
 }
