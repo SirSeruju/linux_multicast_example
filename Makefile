@@ -7,9 +7,3 @@ compile-sender: sender.c
 
 compile-receiver: receiver.c
 	gcc receiver.c -o receiver
-
-sender: compile-sender
-	./sender
-
-receiver: compile-receiver
-	./receiver

@@ -11,8 +11,8 @@
 #include <unistd.h>
 
 
-#define PORT 12345
-#define GROUP "224.1.1.5"
+#define PORT atoi(argv[2])
+#define GROUP argv[1]
 #define BUFF_SIZE 2000
 
 int main(int argc, char *argv[]){
