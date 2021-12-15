@@ -57,6 +57,7 @@ int main(int argc, char *argv[]){
   int c = sizeof(caddr);
   while(1){
     read_size = recvfrom(sd, buff, BUFF_SIZE - 1, MSG_WAITALL, (struct sockaddr*) &caddr, &c);
+    sendto(sd, "Hello im server", 15, 0, (struct sockaddr*)&caddr, c);
     buff[read_size] = '\0';
     printf("%s\n", inet_ntoa(caddr.sin_addr));
     printf("MESG: %s\n", buff);

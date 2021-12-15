@@ -1,9 +1,12 @@
 all: compile
 
-compile: compile-sender compile-receiver
+compile: compile-server compile-client
 
-compile-sender: sender.c
-	gcc sender.c -o sender
+compile-server: server.c
+	gcc server.c -o server
 
-compile-receiver: receiver.c
-	gcc receiver.c -o receiver
+compile-client: client.c
+	gcc client.c -o client
+
+clean:
+	rm -f server client
